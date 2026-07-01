@@ -802,6 +802,18 @@ describe('Localization', () => {
       await expect(page.locator('#field-title')).toBeEmpty()
     })
 
+    test('should not show fallback data after publishing a specific locale', async () => {
+      await page.goto(urlPostsWithDrafts.create)
+      await changeLocale(page, defaultLocale)
+      await fillValues({ title: 'Created In English' })
+      await saveDocAndAssert(page, '#publish-locale')
+
+      await changeLocale(page, spanishLocale)
+      await saveDocAndAssert(page, '#publish-locale')
+
+      await expect(page.locator('#field-title')).toBeEmpty()
+    })
+
     test('blocks - ensure publish locale popup is visible on smaller screen sizes', async () => {
       // This verifies that the Popup component is not hidden behind overflow: hidden of the parent element,
       // which is set for smaller screen sizes.

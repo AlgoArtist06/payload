@@ -147,6 +147,7 @@ export function PublishButton({
     const params = qs.stringify(
       {
         depth: 0,
+        'fallback-locale': 'null',
         locale: localeCode,
         ...(localizeStatusEnabled && { publishAllLocales: true }),
       },
@@ -195,6 +196,7 @@ export function PublishButton({
       const params = qs.stringify(
         {
           depth: 0,
+          'fallback-locale': 'null',
           locale,
         },
         { addQueryPrefix: true },

@@ -1,4 +1,4 @@
-import nextEnvImport from '@next/env'
+import * as nextEnvImport from '@next/env'
 
 import { findUpSync } from '../utilities/findUp.js'
 const { loadEnvConfig } = nextEnvImport

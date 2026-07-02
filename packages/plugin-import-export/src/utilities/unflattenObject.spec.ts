@@ -196,6 +196,19 @@ describe('unflattenObject', () => {
       })
     })
 
+    it('should handle indexed ID columns produced by export', () => {
+      const data = {
+        hasManyRelationship_0_id: 'id1',
+        hasManyRelationship_1_id: 'id2',
+      }
+
+      const result = unflattenObject({ data, fields, req: mockReq })
+
+      expect(result).toEqual({
+        hasManyRelationship: ['id1', 'id2'],
+      })
+    })
+
     it('should handle MongoDB ObjectIDs', () => {
       const data = {
         hasManyRelationship: '507f1f77bcf86cd799439011,507f191e810c19729de860ea',

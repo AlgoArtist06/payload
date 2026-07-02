@@ -88,7 +88,9 @@ const normalizeHasManyRelationships = (
         .map((v) => v.trim())
         .filter((v) => v !== '')
     } else if (Array.isArray(value)) {
-      doc[field.name] = value.filter((v) => v !== null && v !== undefined && v !== '')
+      doc[field.name] = value
+        .map((v) => (isPlainObject(v) && 'id' in v ? v.id : v))
+        .filter((v) => v !== null && v !== undefined && v !== '')
     } else if (value !== null && value !== undefined && value !== '') {
       doc[field.name] = [value]
     }

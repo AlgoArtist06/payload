@@ -4,6 +4,7 @@ import { UNORDERED_LIST } from '@lexical/markdown'
 import { createServerFeature } from '../../../../utilities/createServerFeature.js'
 import { createNode } from '../../../typeUtilities.js'
 import { listItemNodeJSONSchema, listNodeJSONSchema } from '../../shared/schema.js'
+import { validateListNode } from '../../shared/validateListNode.js'
 import { i18n } from './i18n.js'
 
 export const UnorderedListFeature = createServerFeature({
@@ -15,6 +16,7 @@ export const UnorderedListFeature = createServerFeature({
       createNode({
         jsonSchema: listNodeJSONSchema,
         node: ListNode,
+        validations: [validateListNode],
       }),
       createNode({
         jsonSchema: listItemNodeJSONSchema,

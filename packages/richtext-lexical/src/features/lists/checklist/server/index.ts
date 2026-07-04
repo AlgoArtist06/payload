@@ -5,6 +5,7 @@ import { createServerFeature } from '../../../../utilities/createServerFeature.j
 import { createNode } from '../../../typeUtilities.js'
 import { listItemNodeJSONSchema, listNodeJSONSchema } from '../../shared/schema.js'
 import { shouldRegisterListBaseNodes } from '../../shared/shouldRegisterListBaseNodes.js'
+import { validateListNode } from '../../shared/validateListNode.js'
 import { i18n } from './i18n.js'
 
 export const ChecklistFeature = createServerFeature({
@@ -18,6 +19,7 @@ export const ChecklistFeature = createServerFeature({
             createNode({
               jsonSchema: listNodeJSONSchema,
               node: ListNode,
+              validations: [validateListNode],
             }),
             createNode({
               jsonSchema: listItemNodeJSONSchema,

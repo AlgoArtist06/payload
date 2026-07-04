@@ -17,7 +17,7 @@ import {
   UploadFeature,
 } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { configToJSONSchema, sanitizeConfig } from 'payload'
+import { configToJSONSchema, sanitizeConfig, ValidationError } from 'payload'
 import { generateTypes } from 'payload/node'
 import { sanitizeUrl } from 'payload/shared'
 import { fileURLToPath } from 'url'
@@ -61,6 +61,8 @@ import { clearAndSeedEverything } from './seed.js'
 import {
   arrayFieldsSlug,
   lexicalFieldsSlug,
+  lexicalHeadingFeatureSlug,
+  lexicalListsFeatureSlug,
   richTextFieldsSlug,
   textFieldsSlug,
   uploadsSlug,
@@ -1270,6 +1272,128 @@ describe('Lexical', () => {
       })
       expect(result).toContain('href="https://example.com/page"')
       expect(result).toContain('data-fields-hash=')
+    })
+  })
+
+  describe('node validation', () => {
+    const textNode = (text: string) => ({
+      type: 'text',
+      detail: 0,
+      format: 0,
+      mode: 'normal',
+      style: '',
+      text,
+      version: 1,
+    })
+
+    const listItemNode = (text: string) => ({
+      type: 'listitem',
+      children: [textNode(text)],
+      direction: 'ltr' as const,
+      format: '' as const,
+      indent: 0,
+      value: 1,
+      version: 1,
+    })
+
+    it('should reject a list node saved via the API without tag and listType', async () => {
+      const error = await payload
+        .create({
+          collection: lexicalListsFeatureSlug,
+          data: {
+            onlyOrderedList: buildEditorState({
+              nodes: [
+                {
+                  // tag, listType and start intentionally omitted (malformed API payload)
+                  type: 'list',
+                  children: [listItemNode('item')],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  version: 1,
+                } as any,
+              ],
+            }),
+          },
+        })
+        .catch((err: unknown) => err as ValidationError)
+
+      expect(error).toBeInstanceOf(ValidationError)
+      expect(error.data.errors[0]?.message).toMatch(/tag/i)
+    })
+
+    it('should persist a valid list node saved via the API', async () => {
+      const doc = await payload.create({
+        collection: lexicalListsFeatureSlug,
+        data: {
+          onlyOrderedList: buildEditorState({
+            nodes: [
+              {
+                type: 'list',
+                children: [listItemNode('item')],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                listType: 'number',
+                start: 1,
+                tag: 'ol',
+                version: 1,
+              } as any,
+            ],
+          }),
+        },
+      })
+
+      expect(doc.id).toBeTruthy()
+    })
+
+    it('should reject a heading node saved via the API without a tag', async () => {
+      const error = await payload
+        .create({
+          collection: lexicalHeadingFeatureSlug,
+          data: {
+            richText: buildEditorState({
+              nodes: [
+                {
+                  // tag intentionally omitted (malformed API payload)
+                  type: 'heading',
+                  children: [textNode('title')],
+                  direction: 'ltr',
+                  format: '',
+                  indent: 0,
+                  version: 1,
+                } as any,
+              ],
+            }),
+          },
+        })
+        .catch((err: unknown) => err as ValidationError)
+
+      expect(error).toBeInstanceOf(ValidationError)
+      expect(error.data.errors[0]?.message).toMatch(/tag/i)
+    })
+
+    it('should persist a valid heading node saved via the API', async () => {
+      const doc = await payload.create({
+        collection: lexicalHeadingFeatureSlug,
+        data: {
+          richText: buildEditorState({
+            nodes: [
+              {
+                type: 'heading',
+                children: [textNode('title')],
+                direction: 'ltr',
+                format: '',
+                indent: 0,
+                tag: 'h2',
+                version: 1,
+              } as any,
+            ],
+          }),
+        },
+      })
+
+      expect(doc.id).toBeTruthy()
     })
   })
 })

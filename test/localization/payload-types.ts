@@ -408,6 +408,7 @@ export interface Content {
 export interface LocalizedDraft {
   id: string;
   title?: string | null;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1249,6 +1250,7 @@ export interface NestedFieldTablesSelect<T extends boolean = true> {
  */
 export interface LocalizedDraftsSelect<T extends boolean = true> {
   title?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

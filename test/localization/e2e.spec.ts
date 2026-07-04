@@ -682,6 +682,28 @@ describe('Localization', () => {
         })
         .not.toBe(title)
     })
+
+    test('should not show fallback data after publishing data', async () => {
+      await page.goto(urlPostsWithDrafts.create)
+      await changeLocale(page, defaultLocale)
+      await page.locator('#field-title').fill(title)
+
+      // Publish in the default locale
+      await saveDocAndAssert(page)
+      await changeLocale(page, spanishLocale)
+
+      // Publish in a non-default locale, editing only the non-localized field.
+      // The localized title has no Spanish value and must not fall back to the
+      // default locale's value in the form state after publishing.
+      await page.locator('#field-description').fill('non-localized description')
+      await saveDocAndAssert(page)
+
+      await expect
+        .poll(() => page.locator('#field-title').inputValue(), {
+          timeout: POLL_TOPASS_TIMEOUT,
+        })
+        .not.toBe(title)
+    })
   })
 
   describe('fallback checkbox', () => {
